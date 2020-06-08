@@ -1,0 +1,22 @@
+# -----------------------------------------------------------------------------
+# Automerge for portable apps
+# Author: Urs Roesch https://github.com/uroesch copied from action example
+# Version: 0.1.0
+# -----------------------------------------------------------------------------
+name: automerge
+on:
+  pull_request:
+    branches:
+      - master
+  check_suite:
+    types:
+      - completed
+  status: {}
+jobs:
+  automerge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: automerge
+        uses: pascalgn/automerge-action@v0.8.4
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
