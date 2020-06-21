@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# Description: Common classes and functions for portable apps powershell 
+# Description: Common classes and functions for portable apps powershell
 #   scripts
 # Author: Urs Roesch <github@bun.ch>
 # -----------------------------------------------------------------------------
@@ -14,7 +14,7 @@ $AppInfoIni     = "$AppInfoDir\appinfo.ini"
 $UpdateIni      = "$AppInfoDir\update.ini"
 
 # -----------------------------------------------------------------------------
-# Classes 
+# Classes
 # -----------------------------------------------------------------------------
 Class ReadIniConfig {
   [string] $File
@@ -131,7 +131,7 @@ Class Download {
 # -----------------------------------------------------------------------------
 Function Read-IniFile {
   param(
-    [string] $IniFile 
+    [string] $IniFile
   )
   Return [ReadIniConfig]::new($IniFile)
 }

@@ -11,56 +11,29 @@ Using module ".\PortableAppsCommon.psm1"
 # -----------------------------------------------------------------------------
 # Globals
 # -----------------------------------------------------------------------------
-$Version = "0.0.20-alpha"
-$Debug   = $True
+$Version        = "0.0.1-alpha"
+$Debug          = $True
+
+# -----------------------------------------------------------------------------
+# Params
+# -----------------------------------------------------------------------------
+Param (
+  [String]  $OldVersion,
+  [String]  $NewVersion,
+  [Boolean] $Debug
+)
 
 # -----------------------------------------------------------------------------
 # Functions
-# -----------------------------------------------------------------------------
-Function Which-7Zip() {
-  $Locations = @(
-    "$Env:ProgramFiles\7-Zip",
-    "$Env:ProgramFiles(x86)\7-Zip",
-    "$AppRoot\..\7-ZipPortable\App\7-Zip"
-  )
-  Switch (Test-Unix) {
-    $True {
-      $Prefix = 'wine'
-      $Binary = '7z'
-      break
-    }
-    default {
-      $Prefix = ''
-      $Binary = '7z.exe'
-    }
-  }
-  Try {
-    $Path = $(Get-Command $Binary).Source.ToString()
-  }
-  Catch {
-    Foreach ($Location in $Locations) {
-      If (Test-Path "$Location\$Binary") {
-        $Path = "$Prefix $Location\$Binary"
-      }
-    }
-  }
-  Finally {
-    If (!($Path)) {
-      Debug fatal "Could not locate $Binary"
-      Exit 76
-    }
-  }
-  return $Path
-}
-
 # -----------------------------------------------------------------------------
 Function Check-Sum {
   param(
     [object] $Download
   )
-  Return Compare-Checksum `
-    -Checksum $Download.Checksum `
-    -Path $Download.OutFile()
+  ($Algorithm, $Sum) = $Download.Checksum.Split(':')
+  $Result = (Get-FileHash -Path $Download.OutFile() -Algorithm $Algorithm).Hash
+  Debug info "Checksum of INI ($($Sum.ToUpper())) and download ($Result)"
+  return ($Sum.ToUpper() -eq $Result)
 }
 
 # -----------------------------------------------------------------------------
@@ -164,7 +137,7 @@ Function Update-Appinfo-Item() {
     [string] $Match,
     [string] $Replace
   )
-  $IniFile = $(Switch-Path $IniFile)
+  $IniFile = $(Fix-Path $IniFile)
   If (Test-Path $IniFile) {
     Debug info "Update INI File $IniFile with $Match -> $Replace"
     $Content = (Get-Content $IniFile)
@@ -215,6 +188,33 @@ Function Postinstall() {
 }
 
 # -----------------------------------------------------------------------------
+Function Fix-Path() {
+  # Convert Path only Works on Existing Directories :(
+  param( [string] $Path )
+  Switch (Is-Unix) {
+    $True {
+      $From = '\'
+      $To   = '/'
+      break;
+    }
+    default {
+      $From = '/'
+      $To   = '\'
+    }
+  }
+  $Path = $Path.Replace($From, $To)
+  return $Path
+}
+
+# -----------------------------------------------------------------------------
+Function Windows-Path() {
+  param( [string] $Path )
+  If (!(Is-Unix)) { return $Path }
+  $WinPath = $(Invoke-Expression "winepath --windows $Path")
+  return $WinPath
+}
+
+# -----------------------------------------------------------------------------
 Function Create-Launcher() {
   Set-Location $AppRoot
   $AppPath  = (Get-Location)
@@ -251,14 +251,14 @@ Function Invoke-Helper() {
   Set-Location $AppRoot
   $AppPath = (Get-Location)
 
-  Switch (Test-Unix) {
+  Switch (Is-Unix) {
     $True   {
-      $Arguments = "$Command $(ConvertTo-WindowsPath $AppPath)"
+      $Arguments = "$Command $(Windows-Path $AppPath)"
       $Command   = "wine"
       break
     }
     default {
-      $Arguments = ConvertTo-WindowsPath $AppPath
+      $Arguments = Windows-Path $AppPath
     }
   }
 
@@ -274,7 +274,7 @@ Function Invoke-Helper() {
 # -----------------------------------------------------------------------------
 # Main
 # -----------------------------------------------------------------------------
-$Config = Read-IniFile -IniFile $UpdateIni
+$Config = Parse-IniFile -IniFile $UpdateIni
 Update-Application
 Update-Appinfo
 Postinstall
