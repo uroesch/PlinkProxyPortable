@@ -64,6 +64,8 @@ jobs:
     - name: Update common files
       shell: bash
       run: |2+
-        git submodule init ${GITHUB_REPOSITORY##*/}
-        git submodule update ${GITHUB_REPOSITORY##*/}
+        for module in ${GITHUB_REPOSITORY##*/} PortableApps.com{Launcher,Installer}; do
+          git submodule init ${module}
+          git submodule update ${module}
+        done
         bash ./scripts/sync-common-files.sh --start-x ${GITHUB_REPOSITORY##*/}
