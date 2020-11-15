@@ -53,11 +53,6 @@ jobs:
       with:
         repository: uroesch/PortableApps
 
-    - name: Checkout repository
-      uses: actions/checkout@v2
-      with:
-        path: PortableApps
-
     - name: Setup git
       shell: bash
       run: |2+
@@ -69,7 +64,6 @@ jobs:
     - name: Update common files
       shell: bash
       run: |2+
-        pwd
+        git submodule sync ${GITHUB_REPOSITORY##*/}
         find ${GITHUB_WORKSPACE} -type f -name "sync-common-files.sh"  
-        find ${GITHUB_WORKSPACE} -maxdepth 3 -type d 
-        bash PortableApps/scripts/sync-common-files.sh --start-x ${GITHUB_REPOSITORY##*/}
+        bash ./scripts/sync-common-files.sh --start-x ${GITHUB_REPOSITORY##*/}
