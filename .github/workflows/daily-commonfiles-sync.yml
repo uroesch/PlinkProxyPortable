@@ -64,6 +64,5 @@ jobs:
     - name: Update common files
       shell: bash
       run: |2+
-        git submodule sync ${GITHUB_REPOSITORY##*/}
-        find ${GITHUB_WORKSPACE} -type f -name "sync-common-files.sh"  
+        git submodule update ${GITHUB_REPOSITORY##*/}
         bash ./scripts/sync-common-files.sh --start-x ${GITHUB_REPOSITORY##*/}
