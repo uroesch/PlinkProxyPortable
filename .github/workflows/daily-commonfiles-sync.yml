@@ -68,4 +68,4 @@ jobs:
           git submodule init ${module}
           git submodule update ${module}
         done
-        bash ./scripts/sync-common-files.sh --start-x ${GITHUB_REPOSITORY##*/}
+        bash -x ./scripts/sync-common-files.sh --start-x ${GITHUB_REPOSITORY##*/}
