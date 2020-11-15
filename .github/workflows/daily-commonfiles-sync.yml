@@ -69,6 +69,6 @@ jobs:
     - name: Update common files
       shell: bash
       run: |2+
-        ls -ld 
-        echo ${GITHUB_REPOSITORY##*/}
+        pwd
+        find -type f -name "sync-common-files.sh"  
         bash PortableApps/scripts/sync-common-files.sh --start-x ${GITHUB_REPOSITORY##*/}
