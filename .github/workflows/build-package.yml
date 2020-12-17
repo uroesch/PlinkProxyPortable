@@ -1,7 +1,7 @@
 # -----------------------------------------------------------------------------
 # Build workflow for portable apps
 # Author: Urs Roesch https://github.com/uroesch
-# Version: 0.6.0
+# Version: 0.7.0
 # -----------------------------------------------------------------------------
 name: build-package
 
